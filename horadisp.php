@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+// If the user is not logged in redirect to the login page...
+if (!isset($_SESSION['loggedin'])) {
+	header('Location: index.html');
+	exit;
+}
 
 $DATABASE_HOST = 'optideve.com';
 $DATABASE_USER = 'optideve_login';
@@ -77,7 +82,7 @@ $monday->setISODate($currentYear, $currentWeekNumber);
 </head>
 <body>
     <div class="title">
-        Edición de horarios disponibles <br>
+        Edición de horarios disponibles <?=$_SESSION['name']?><br>
         Semana <?php echo $monday->format('d') . ' de ' . $monday->format('F'); ?>
     </div>
     <div class="calendar">
