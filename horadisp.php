@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fechaHoraFormateada = $fechaHoraReserva->format('Y-m-d H:i:s');
 
     if ($action === 'agregar') {
-        $insertReservaQuery = "INSERT INTO reservas (hora, idbarber, idcliente, idservicio, realizada) VALUES ('$fechaHoraFormateada', 1, 1, 1, FALSE)";
+        $insertReservaQuery = "INSERT INTO reservas (hora, idbarber, idservicio, realizada) VALUES ('$fechaHoraFormateada', 1, 1, FALSE)";
         $con->query($insertReservaQuery);
     } elseif ($action === 'eliminar') {
         $eliminarReservaQuery = "DELETE FROM reservas WHERE idbarber = 1 AND hora = '$fechaHoraFormateada'";
