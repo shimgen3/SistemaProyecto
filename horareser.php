@@ -144,9 +144,11 @@ $monday->setISODate($currentYear, $currentWeekNumber);
                     $resultReserva = $con->query($queryReserva);
                     $isReserved = $resultReserva->num_rows > 0;
 
-                    if (!$isReserved) {
+                    if ($isReserved) {
                         echo '<td class="available" onclick="mostrarPopup(\'' . $formattedDate . '\', \'' . $horadisp2 . '\')"></td>';
-                    } else {
+                    } elseif {
+                        echo '<td class="reserved"></td>';
+                    } elseif {
                         echo '<td class="reserved"></td>';
                     }
                 }
