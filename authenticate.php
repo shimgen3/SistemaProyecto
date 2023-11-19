@@ -2,10 +2,10 @@
 session_start();
 // Change this to your connection info.
 
-$DATABASE_HOST = 'optideve.com';
-$DATABASE_USER = 'optideve_login';
-$DATABASE_PASS = 'log1605log';
-$DATABASE_NAME = 'optideve_Test';
+$DATABASE_HOST = 'localhost';
+$DATABASE_USER = 'root';
+$DATABASE_PASS = '';
+$DATABASE_NAME = 'barberia';
 // Try and connect using the info above.
 $con = mysqli_connect($DATABASE_HOST, $DATABASE_USER, $DATABASE_PASS, $DATABASE_NAME);
 if ( mysqli_connect_errno() ) {
@@ -36,7 +36,7 @@ if ($stmt = $con->prepare('SELECT idbarber, password FROM barberos WHERE usernam
             $_SESSION['loggedin'] = TRUE;
             $_SESSION['name'] = $_POST['username'];
             $_SESSION['id'] = $id;
-            header('Location: horadisp.php');
+            header('Location: profile.php');
         } else {
             // Incorrect password
             echo '1Incorrect username and/or password!';

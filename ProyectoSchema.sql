@@ -1,6 +1,6 @@
 DROP DATABASE IF EXISTS barberia;
 CREATE DATABASE barberia CHARACTER SET utf8mb4;
-
+USE barberia;
 CREATE TABLE barberos (
     idbarber INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL,
