@@ -38,9 +38,9 @@ CREATE TABLE reservas (
 
 INSERT INTO barberos (username, email, rut, password)
 VALUES 
-('Juan Pérez', 'juanperez@example.com', '12345678-9', 'password123'),
-('Carlos López', 'carloslopez@example.com', '98765432-1', 'password456'),
-('Ana Soto', 'anasoto@example.com', '13579246-8', 'password789');
+('Juan Pérez', 'juanperez@example.com', '12345678-9', '$2y$10$IQVdq/BnSUyUEtCzdqRZlOr2IB0cgI0n8Pj3iCn.G29N63/.fSACq'),
+('Carlos López', 'carloslopez@example.com', '98765432-1', '$2y$10$IQVdq/BnSUyUEtCzdqRZlOr2IB0cgI0n8Pj3iCn.G29N63/.fSACq'),
+('Ana Soto', 'anasoto@example.com', '13579246-8', '$2y$10$IQVdq/BnSUyUEtCzdqRZlOr2IB0cgI0n8Pj3iCn.G29N63/.fSACq');
 
 INSERT INTO clientes (username, email, rut, telefono)
 VALUES 
