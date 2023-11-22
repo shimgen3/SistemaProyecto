@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbería El Estilo</title>
+    <title>Yankee Barber</title>
     <style>
         /* Estilos generales */
         body {
@@ -13,7 +13,7 @@
         }
 
         header {
-            background-color: #333;
+            background-color: #000000;
             color: #fff;
             padding: 1rem;
             text-align: center;
@@ -62,10 +62,24 @@
             list-style-type: disc;
             margin-left: 2rem;
         }
-
+        #galeria2 {
+            background-color: #f4f4f4;
+            padding-left: 2rem;
+            padding-top: 2rem;
+            padding-bottom: 0.5rem;
+        }
         #galeria {
             background-color: #f4f4f4;
             padding: 2rem;
+            display: flex; /* Utiliza flexbox para mostrar las imágenes en línea */
+             /* Evita que las imágenes se envuelvan en una nueva línea */
+        }
+
+        #galeria img {
+            max-width: 20%; /* Ajusta el ancho máximo según tus necesidades */
+            height: auto;
+            display: block;
+            margin-right: 10px; /* Añade un margen entre las imágenes */
         }
 
         #contacto {
@@ -93,11 +107,18 @@
         .admin-btn:hover {
             background-color: #ddd;
         }
+
+        /* Estilo para el logo */
+        header img {
+            max-width: 170px; /* Ajusta el ancho máximo según tus necesidades */
+            height: auto;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Barbería El Estilo</h1>
+        <img src="otherfiles\logo.jpeg" alt="Logo de Yankee Barber">
+        <h1>Yankee Barber</h1>
         <nav>
             <ul>
                 <li><a href="#inicio">Inicio</a></li>
@@ -109,7 +130,7 @@
     </header>
 
     <section id="inicio">
-        <h2>Bienvenido a Barbería El Estilo</h2>
+        <h2>Bienvenido a Yankee Barber</h2>
         <p>Somos expertos en cortes de cabello y estilos únicos para hombres.</p>
         <a href="horareser.php" class="reserva-btn">Reserva tu Hora Aquí</a>
         <a href="login.html" class="admin-btn">Acceso de Barberos</a>
@@ -125,9 +146,15 @@
         </ul>
     </section>
 
+    <section id="galeria2">
+        <h2>Galería Yankee Barber</h2>
+    </section>
+
     <section id="galeria">
-        <h2>Galería de Estilos</h2>
-        <!-- Agrega aquí tus imágenes y descripciones -->
+        
+        <img src="otherfiles\img1.jpeg" alt="Imagen 1">
+        <img src="otherfiles\img2.jpeg" alt="Imagen 2">
+        <img src="otherfiles\img3.jpeg" alt="Imagen 3">
     </section>
 
     <section id="contacto">
@@ -142,7 +169,7 @@
     </section>
 
     <footer>
-        <p>&copy; 2023 Barbería El Estilo. Todos los derechos reservados.</p>
+        <p>&copy; 2023 Barbería Yankee Barber. Todos los derechos reservados.</p>
     </footer>
 </body>
 </html>

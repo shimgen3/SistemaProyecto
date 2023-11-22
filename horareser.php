@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-$DATABASE_HOST = 'optideve.com';
-$DATABASE_USER = 'optideve_login';
-$DATABASE_PASS = 'log1605log';
-$DATABASE_NAME = 'optideve_Test';
+$DATABASE_HOST = 'localhost';
+$DATABASE_USER = 'root';
+$DATABASE_PASS = '';
+$DATABASE_NAME = 'barberia';
 
 $con = mysqli_connect($DATABASE_HOST, $DATABASE_USER, $DATABASE_PASS, $DATABASE_NAME);
 if (mysqli_connect_errno()) {
@@ -12,20 +12,19 @@ if (mysqli_connect_errno()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'];
-    $diaReserva = $_POST['dia'];
-    $horaReserva = $_POST['hora'];
-    $fechaHoraReserva = new DateTime("$diaReserva $horaReserva");
-    $fechaHoraFormateada = $fechaHoraReserva->format('Y-m-d H:i:s');
+    $action = isset($_POST['action']) ? $_POST['action'] : null;
+    $diaReserva = isset($_POST['dia']) ? $_POST['dia'] : null;
+    $horaReserva = isset($_POST['hora']) ? $_POST['hora'] : null;
 
     if ($action === 'reservar') {
+        // Datos del cliente
         $nombreCliente = $_POST['nombre'];
         $rutCliente = $_POST['rut'];
         $telefonoCliente = $_POST['telefono'];
         $servicioSeleccionado = $_POST['servicio'];
 
         // Verificar si el cliente ya existe
-        $queryClienteExistente = "SELECT * FROM clientes WHERE rut = '$rutCliente'";
+        $queryClienteExistente = "SELECT idcliente FROM clientes WHERE rut = '$rutCliente'";
         $resultClienteExistente = $con->query($queryClienteExistente);
 
         if ($resultClienteExistente->num_rows == 0) {
@@ -41,44 +40,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $idCliente = $rowIdCliente['idcliente'];
 
         // Obtener el id del servicio
-        $queryIdServicio = "SELECT idservicio FROM servicios WHERE name = '$servicioSeleccionado'";
+        $queryIdServicio = "SELECT idservicio FROM servicios WHERE servicename = '$servicioSeleccionado'";
         $resultIdServicio = $con->query($queryIdServicio);
         $rowIdServicio = $resultIdServicio->fetch_assoc();
         $idServicio = $rowIdServicio['idservicio'];
 
-        // Insertar reserva en la tabla de reservas
-        $insertReservaQuery = "INSERT INTO reservas (hora, idbarber, idcliente, idservicio, realizada) VALUES ('$fechaHoraFormateada', 1, $idCliente, $idServicio, TRUE)";
-        $con->query($insertReservaQuery);
+        // Actualizar reserva en la tabla de reservas
+        $updateReservaQuery = "UPDATE reservas SET idcliente = $idCliente, idservicio = $idServicio, realizada = TRUE WHERE idbarber = 5 AND hora = '$diaReserva $horaReserva'";
+        $con->query($updateReservaQuery);
     }
 }
 
+// Obtener la semana actual o la seleccionada
 $currentWeekNumber = isset($_GET['week']) ? intval($_GET['week']) : date('W');
 $currentYear = date('Y');
 $monday = new DateTime();
 $monday->setISODate($currentYear, $currentWeekNumber);
+
+// Obtener la lista de barberos
+$queryBarberos = "SELECT idbarber, username FROM barberos";
+$resultBarberos = $con->query($queryBarberos);
+$barberos = [];
+while ($row = $resultBarberos->fetch_assoc()) {
+    $barberos[] = $row;
+}
+
+// Obtener el id del barbero seleccionado
+$idBarberoSeleccionado = isset($_POST['barbero']) ? $_POST['barbero'] : (isset($_GET['barbero']) ? $_GET['barbero'] : 1);
+
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reserva de Horas en Peluquería</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
         }
-        .calendar {
-            display: inline-block;
-            margin: 20px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        label, select, button {
+            margin-bottom: 10px;
         }
         table {
             border-collapse: collapse;
             width: 100%;
+            margin-top: 20px;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: center;
         }
         th {
@@ -90,6 +121,13 @@ $monday->setISODate($currentYear, $currentWeekNumber);
         }
         .reserved {
             background-color: #ffaaaa;
+        }
+        .blank {
+            background-color: #FFFFFF;
+        }
+        .week-navigation {
+            text-align: center;
+            margin-top: 10px;
         }
         .booking-popup {
             display: none;
@@ -106,10 +144,22 @@ $monday->setISODate($currentYear, $currentWeekNumber);
             display: block;
             margin-bottom: 10px;
         }
-        .title {
+        .booking-popup h3 {
             text-align: center;
             font-size: 20px;
-            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .booking-popup button {
+            display: inline-block;
+            background-color: #333;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .booking-popup button.cancel {
+            background-color: #ccc;
         }
     </style>
 </head>
@@ -118,6 +168,25 @@ $monday->setISODate($currentYear, $currentWeekNumber);
         Reserva de Horas en Peluquería <br>
         Semana <?php echo $monday->format('d') . ' de ' . $monday->format('F'); ?>
     </div>
+    
+    <!-- Agregar selección de barbero y semana -->
+    <form method="POST" action="">
+        <label for="barbero">Seleccione un barbero:</label>
+        <select id="barbero" name="barbero" required>
+            <?php foreach ($barberos as $barberoItem) : ?>
+                <option value="<?= $barberoItem['idbarber'] ?>" <?php echo $idBarberoSeleccionado == $barberoItem['idbarber'] ? 'selected' : ''; ?>>
+                    <?= $barberoItem['username'] ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        
+        
+        <input type="hidden" name="action" value="seleccionar">
+        <button type="submit">Seleccionar</button>
+    </form>
+
+    <!-- Mostrar horarios -->
     <div class="calendar">
         <table>
             <tr>
@@ -140,16 +209,21 @@ $monday->setISODate($currentYear, $currentWeekNumber);
                     $formattedDate = $currentDay->format('Y-m-d');
                     $horadisp2 = ($hour . ":00");
 
-                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = 1 AND hora = '$formattedDate $horadisp2'";
+                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = $idBarberoSeleccionado AND hora = '$formattedDate $horadisp2' and idcliente IS NULL";
                     $resultReserva = $con->query($queryReserva);
                     $isReserved = $resultReserva->num_rows > 0;
+                    $queryReserva2 = "SELECT * FROM reservas WHERE idbarber = $idBarberoSeleccionado AND hora = '$formattedDate $horadisp2' and idcliente IS NOT NULL";
+                    $resultReserva2 = $con->query($queryReserva2);
+                    $isReserved2 = $resultReserva2->num_rows > 0;
+                    
 
                     if ($isReserved) {
                         echo '<td class="available" onclick="mostrarPopup(\'' . $formattedDate . '\', \'' . $horadisp2 . '\')"></td>';
-                    } elseif {
+                    } elseif ($isReserved2){
                         echo '<td class="reserved"></td>';
-                    } elseif {
-                        echo '<td class="reserved"></td>';
+                    } else
+                    {
+                        echo '<td class="blank"></td>';
                     }
                 }
                 echo '</tr>';
@@ -158,6 +232,12 @@ $monday->setISODate($currentYear, $currentWeekNumber);
         </table>
     </div>
     
+    <div style="text-align: center; margin-top: 10px;">
+        <a href="?week=<?php echo $currentWeekNumber - 1; ?>&barbero=<?php echo $idBarberoSeleccionado; ?>">Semana anterior</a>
+        <a href="?week=<?php echo $currentWeekNumber + 1; ?>&barbero=<?php echo $idBarberoSeleccionado; ?>">Siguiente semana</a><br>
+        <button onclick="volverAotraPagina()">Volver al inicio</button>
+    </div>
+
     <div id="bookingPopup" class="booking-popup">
         <h3>Reservar Hora</h3>
         <form method="POST" action="">
@@ -193,6 +273,10 @@ $monday->setISODate($currentYear, $currentWeekNumber);
 
         function ocultarPopup() {
             document.getElementById('bookingPopup').style.display = 'none';
+        }
+        function volverAotraPagina() {
+            
+            window.location.href = "profile.php";
         }
     </script>
 </body>
