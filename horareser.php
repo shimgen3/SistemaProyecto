@@ -1,22 +1,14 @@
 <?php
 session_start();
 
-$DATABASE_HOST = 'localhost';
-$DATABASE_USER = 'root';
-$DATABASE_PASS = '';
-$DATABASE_NAME = 'barberia';
+$DATABASE_HOST = 'optideve.com';
+$DATABASE_USER = 'optideve_login';
+$DATABASE_PASS = 'log1605log';
+$DATABASE_NAME = 'optideve_Test';
 
 $con = mysqli_connect($DATABASE_HOST, $DATABASE_USER, $DATABASE_PASS, $DATABASE_NAME);
 if (mysqli_connect_errno()) {
     exit('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-
-// Obtener la lista de barberos
-$queryBarberos = "SELECT idbarber, username FROM barberos";
-$resultBarberos = $con->query($queryBarberos);
-$barberos = [];
-while ($row = $resultBarberos->fetch_assoc()) {
-    $barberos[] = $row;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -27,8 +19,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fechaHoraFormateada = $fechaHoraReserva->format('Y-m-d H:i:s');
 
     if ($action === 'reservar') {
-        // Resto del código de reserva
-        // ...
+        $nombreCliente = $_POST['nombre'];
+        $rutCliente = $_POST['rut'];
+        $telefonoCliente = $_POST['telefono'];
+        $servicioSeleccionado = $_POST['servicio'];
+
+        // Verificar si el cliente ya existe
+        $queryClienteExistente = "SELECT * FROM clientes WHERE rut = '$rutCliente'";
+        $resultClienteExistente = $con->query($queryClienteExistente);
+
+        if ($resultClienteExistente->num_rows == 0) {
+            // El cliente no existe, lo agregamos
+            $insertClienteQuery = "INSERT INTO clientes (username, rut, telefono) VALUES ('$nombreCliente', '$rutCliente', '$telefonoCliente')";
+            $con->query($insertClienteQuery);
+        }
+
+        // Obtener el id del cliente
+        $queryIdCliente = "SELECT idcliente FROM clientes WHERE rut = '$rutCliente'";
+        $resultIdCliente = $con->query($queryIdCliente);
+        $rowIdCliente = $resultIdCliente->fetch_assoc();
+        $idCliente = $rowIdCliente['idcliente'];
+
+        // Obtener el id del servicio
+        $queryIdServicio = "SELECT idservicio FROM servicios WHERE name = '$servicioSeleccionado'";
+        $resultIdServicio = $con->query($queryIdServicio);
+        $rowIdServicio = $resultIdServicio->fetch_assoc();
+        $idServicio = $rowIdServicio['idservicio'];
+
+        // Insertar reserva en la tabla de reservas
+        $insertReservaQuery = "INSERT INTO reservas (hora, idbarber, idcliente, idservicio, realizada) VALUES ('$fechaHoraFormateada', 1, $idCliente, $idServicio, TRUE)";
+        $con->query($insertReservaQuery);
     }
 }
 
@@ -98,19 +118,6 @@ $monday->setISODate($currentYear, $currentWeekNumber);
         Reserva de Horas en Peluquería <br>
         Semana <?php echo $monday->format('d') . ' de ' . $monday->format('F'); ?>
     </div>
-    
-    <!-- Agregar selección de barbero -->
-    <form method="POST" action="">
-        <label for="barbero">Seleccione un barbero:</label>
-        <select id="barbero" name="barbero" required>
-            <?php foreach ($barberos as $barbero) : ?>
-                <option value="<?= $barbero['idbarber'] ?>"><?= $barbero['username'] ?></option>
-            <?php endforeach; ?>
-        </select>
-        <button type="submit">Seleccionar</button>
-    </form>
-
-    <!-- Mostrar horarios -->
     <div class="calendar">
         <table>
             <tr>
@@ -133,16 +140,15 @@ $monday->setISODate($currentYear, $currentWeekNumber);
                     $formattedDate = $currentDay->format('Y-m-d');
                     $horadisp2 = ($hour . ":00");
 
-                    // Obtener el id del barbero seleccionado
-                    $idBarberoSeleccionado = isset($_POST['barbero']) ? $_POST['barbero'] : 1;
-
-                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = $idBarberoSeleccionado AND hora = '$formattedDate $horadisp2'";
+                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = 1 AND hora = '$formattedDate $horadisp2'";
                     $resultReserva = $con->query($queryReserva);
                     $isReserved = $resultReserva->num_rows > 0;
 
                     if ($isReserved) {
                         echo '<td class="available" onclick="mostrarPopup(\'' . $formattedDate . '\', \'' . $horadisp2 . '\')"></td>';
-                    } else {
+                    } elseif {
+                        echo '<td class="reserved"></td>';
+                    } elseif {
                         echo '<td class="reserved"></td>';
                     }
                 }
@@ -151,9 +157,32 @@ $monday->setISODate($currentYear, $currentWeekNumber);
             ?>
         </table>
     </div>
-
+    
     <div id="bookingPopup" class="booking-popup">
-        <!-- Contenido del popup (mismo que en el código original) -->
+        <h3>Reservar Hora</h3>
+        <form method="POST" action="">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required><br>
+
+            <label for="rut">RUT:</label>
+            <input type="text" id="rut" name="rut" required><br>
+
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" name="telefono" required><br>
+
+            <label for="servicio">Servicio:</label>
+            <select id="servicio" name="servicio" required>
+                <option value="Corte de cabello">Corte de cabello</option>
+                <option value="Afeitado">Afeitado</option>
+                <option value="Corte y afeitado">Corte y afeitado</option>
+            </select><br>
+
+            <input type="hidden" id="horaReserva" name="hora">
+            <input type="hidden" name="action" value="reservar">
+
+            <button type="submit">Reservar</button>
+            <button type="button" onclick="ocultarPopup()">Cancelar</button>
+        </form>
     </div>
 
     <script>
@@ -172,4 +201,3 @@ $monday->setISODate($currentYear, $currentWeekNumber);
 <?php
 $con->close();
 ?>
-

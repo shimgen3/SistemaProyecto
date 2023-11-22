@@ -1,32 +1,24 @@
 <?php
 session_start();
 
-
+// If the user is not logged in redirect to the login page...
 if (!isset($_SESSION['loggedin'])) {
 	header('Location: index.html');
 	exit;
 }
-$idBarbero = $_SESSION['id'];
-$DATABASE_HOST = 'localhost';
-$DATABASE_USER = 'root';
-$DATABASE_PASS = '';
-$DATABASE_NAME = 'barberia';
+
+$DATABASE_HOST = 'optideve.com';
+$DATABASE_USER = 'optideve_login';
+$DATABASE_PASS = 'log1605log';
+$DATABASE_NAME = 'optideve_Test';
 
 $con = mysqli_connect($DATABASE_HOST, $DATABASE_USER, $DATABASE_PASS, $DATABASE_NAME);
 if (mysqli_connect_errno()) {
     exit('Failed to connect to MySQL: ' . mysqli_connect_error());
 }
 
-$stmt = $con->prepare('SELECT * FROM barberos WHERE idbarber = ?');
-$stmt->bind_param('i', $_SESSION['id']);
-$stmt->execute();
-$stmt->bind_result($idbarber, $username, $email, $rut, $password);
-$stmt->fetch();
-$stmt->close();
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+    $usuario = $_SESSION['username'];
     $action = $_POST['action'];
 
     $diaReserva = $_POST['dia'];
@@ -35,13 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fechaHoraFormateada = $fechaHoraReserva->format('Y-m-d H:i:s');
 
     if ($action === 'agregar') {
-        
-        $insertReservaQuery = "INSERT INTO reservas (hora, idbarber, idservicio, realizada) VALUES ('$fechaHoraFormateada', '$idBarbero', NULL, FALSE)";
+        $insertReservaQuery = "INSERT INTO reservas (hora, idbarber, idservicio, realizada) VALUES ('$fechaHoraFormateada', 1, 1, FALSE)";
         $con->query($insertReservaQuery);
     } elseif ($action === 'eliminar') {
-          
-        $eliminarReservaQuery = "DELETE FROM reservas WHERE idbarber = $idBarbero AND hora = '$fechaHoraFormateada'";
-        $con->query($eliminarReservaQuery);}}
+        $eliminarReservaQuery = "DELETE FROM reservas WHERE idbarber = 1 AND hora = '$fechaHoraFormateada'";
+        $con->query($eliminarReservaQuery);
+    }
+}
 
 $currentWeekNumber = isset($_GET['week']) ? intval($_GET['week']) : date('W');
 $currentYear = date('Y');
@@ -115,7 +107,7 @@ $monday->setISODate($currentYear, $currentWeekNumber);
                     $formattedDate = $currentDay->format('Y-m-d');
                     $horadisp2 = ($hour . ":00");
 
-                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = $idbarber AND hora = '$formattedDate $horadisp2'";
+                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = 1 AND hora = '$formattedDate $horadisp2'";
                     $resultReserva = $con->query($queryReserva);
                     $isReserved = $resultReserva->num_rows > 0;
 
