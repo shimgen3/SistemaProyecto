@@ -24,12 +24,12 @@ Esta aplicación web facilita la gestión de reservas para una barbería. A cont
 > **Nota**: La funcionalidad de sistemas de alertas de reservas y eventos via mail falta, esta configuracion se hace a la hora de instalar el codigo en el servido. Se recomienda revisar regularmente las actualizaciones del sistema para obtener nuevas características y mejoras. Utilizando la siguiente función
 
 ```php
-    mail(mail(
+    mail(
     string $to,
     string $subject,
     string $message,
     string $additional_headers = ?,
     string $additional_parameters = ?
-    ): bool)
+    ): bool
 
 
