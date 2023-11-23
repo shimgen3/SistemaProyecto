@@ -42,13 +42,16 @@ $stmt->close();
 			<div>
 				<h1>Barberia</h1>
 				<a href="profile.php"><i class="fas fa-user-circle"></i>Perfil</a>
+				<a href="datos.php"><i class="fas fa-user-circle"></i>Datos barberia</a>
+				<a href="horadisp.php"><i class="fas fa-clock"></i>Crear Horarios</a>
+				<a href="horarealizada.php"><i class="fas fa-clock"></i>Ver y confirmar reservas</a>
 				<a href="logout.php"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</a>
-				<a href="horadisp.php"><i class="fas fa-clock"></i>Asignar Horarios</a>
 			</div>
 		</nav>
 		<div class="content">
 			<h2>Página de Perfil del Barbero</h2>
 			<div>
+			
 				<p>Los detalles de tu cuenta son los siguientes:</p>
 				<table>
 					<tr>

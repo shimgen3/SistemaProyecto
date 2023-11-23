@@ -36,11 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'agregar') {
         
-        $insertReservaQuery = "INSERT INTO reservas (hora, idbarber, idservicio, realizada) VALUES ('$fechaHoraFormateada', '$idBarbero', NULL, FALSE)";
+        $insertReservaQuery = "UPDATE reservas SET realizada=1 WHERE idbarber = $idBarbero AND hora = '$fechaHoraFormateada'";
         $con->query($insertReservaQuery);
     } elseif ($action === 'eliminar') {
           
-        $eliminarReservaQuery = "DELETE FROM reservas WHERE idbarber = $idBarbero AND hora = '$fechaHoraFormateada'";
+        $eliminarReservaQuery = "UPDATE reservas SET realizada=0 WHERE idbarber = $idBarbero AND hora = '$fechaHoraFormateada'";
         $con->query($eliminarReservaQuery);}}
 
 $currentWeekNumber = isset($_GET['week']) ? intval($_GET['week']) : date('W');
@@ -95,13 +95,13 @@ $monday->setISODate($currentYear, $currentWeekNumber);
             background-color: #f2f2f2;
         }
         .available {
-            background-color: #aaffaa;
+            background-color: #fff2aa;
         }
         .reserved {
-            background-color: #ffaaaa;
+            background-color: #aaddff;
         }
         .free {
-            background-color: #aaffaa;
+            background-color: #9bf79b00;
         }
         .title {
             text-align: center;
@@ -137,19 +137,30 @@ $monday->setISODate($currentYear, $currentWeekNumber);
                     $formattedDate = $currentDay->format('Y-m-d');
                     $horadisp2 = ($hour . ":00");
 
-                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = $idbarber AND hora = '$formattedDate $horadisp2' AND idcliente IS NULL";
+                    $queryReserva = "SELECT * FROM reservas WHERE idbarber = $idbarber AND hora = '$formattedDate $horadisp2' AND realizada=0 AND idcliente IS NOT NULL";
                     $resultReserva = $con->query($queryReserva);
                     $isReserved = $resultReserva->num_rows > 0;
 
-                    $queryReserva2 = "SELECT * FROM reservas WHERE idbarber = $idbarber AND hora = '$formattedDate $horadisp2' AND idcliente IS NOT NULL";
+                    $queryReserva2 = "SELECT * FROM reservas WHERE idbarber = $idbarber AND hora = '$formattedDate $horadisp2' AND realizada=1 AND idcliente IS NOT NULL";
                     $resultReserva2 = $con->query($queryReserva2);
                     $isReserved2 = $resultReserva2->num_rows > 0;
-                    
-                    
-                    if (!$isReserved) {
-                        echo '<td class="blank" onclick="accionReserva(\'' . $formattedDate . '\', \'' . $horadisp2 . '\', \'agregar\')"></td>';
-                    } elseif (!$isReserved2) {
-                        echo '<td class="reserved" onclick="accionReserva(\'' . $formattedDate . '\', \'' . $horadisp2 . '\', \'eliminar\')"></td>';
+
+                    $queryNombreCliente = "SELECT c.username 
+                           FROM clientes c
+                           INNER JOIN reservas r ON c.idcliente = r.idcliente
+                           WHERE r.idbarber = $idbarber AND r.hora = '$formattedDate $horadisp2'";
+
+                    $resultNombreCliente = $con->query($queryNombreCliente);
+
+                    if ($resultNombreCliente->num_rows > 0) {
+                        $rowNombreCliente = $resultNombreCliente->fetch_assoc();
+                        $NombreCliente = $rowNombreCliente['username'];
+                    }
+
+                    if ($isReserved) {
+                        echo '<td class="available" onclick="accionReserva(\'' . $formattedDate . '\', \'' . $horadisp2 . '\', \'agregar\')">' . $NombreCliente . '</td>';
+                    } elseif ($isReserved2) {
+                        echo '<td class="reserved" onclick="accionReserva(\'' . $formattedDate . '\', \'' . $horadisp2 . '\', \'eliminar\')">' . $NombreCliente . '</td>';
                     } else {
                         echo '<td class="free"></td>';
                     }
@@ -205,4 +216,3 @@ $monday->setISODate($currentYear, $currentWeekNumber);
 <?php
 $con->close();
 ?>
-
