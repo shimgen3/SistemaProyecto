@@ -174,7 +174,7 @@ $idBarberoSeleccionado = isset($_POST['barbero']) ? $_POST['barbero'] : (isset($
         Semana <?php echo $monday->format('d') . ' de ' . $monday->format('F'); ?>
     </div>
     
-    <!-- Agregar selección de barbero y semana -->
+    <!-- Agregar selección de barbero -->
     <form method="POST" action="">
         <label for="barbero">Seleccione un barbero:</label>
         <select id="barbero" name="barbero" required>
