@@ -60,4 +60,5 @@ Esta aplicación web está diseñada para mejorar la gestión de reservas en bar
 ## Instalación
 
 1. Ejecutar `ProyectoSchema.sql` en phpMyAdmin del servidor.
-2. Colocar todos los archivos en la carpeta 'Public' del servidor.
+2. En los diferentes archivos editar los datos para dar acceso a la base de datos.
+3. Colocar todos los archivos en la carpeta 'Public' del servidor.
