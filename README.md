@@ -1,4 +1,6 @@
-# Sistema de Proyecto - Barbería
+# Proyecto Sistemas - Gestion Horas Barberia
+
+##Descripción 
 
 Esta aplicación web facilita la gestión de reservas para una barbería. A continuación, se describen las principales páginas y funcionalidades del sistema:
 
@@ -31,5 +33,7 @@ Esta aplicación web facilita la gestión de reservas para una barbería. A cont
     string $additional_headers = ?,
     string $additional_parameters = ?
     ): bool
-
+#Instalación
+1. En el phpmyadmin del servidor ejecutar `ProyectoSchema.sql`
+2. En la carpeta Public poner todos los archivos 
 
