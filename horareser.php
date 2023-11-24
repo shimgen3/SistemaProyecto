@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : null;
     $diaReserva = isset($_POST['dia']) ? $_POST['dia'] : null;
     $horaReserva = isset($_POST['hora']) ? $_POST['hora'] : null;
+    $idbarber = isset($_POST['barber']) ? $_POST['barber'] : null;
 
     if ($action === 'reservar') {
         // Datos del cliente
@@ -22,14 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $rutCliente = $_POST['rut'];
         $telefonoCliente = $_POST['telefono'];
         $servicioSeleccionado = $_POST['servicio'];
-
+        $email = $_POST['email'];
+        
         // Verificar si el cliente ya existe
         $queryClienteExistente = "SELECT idcliente FROM clientes WHERE rut = '$rutCliente'";
         $resultClienteExistente = $con->query($queryClienteExistente);
 
         if ($resultClienteExistente->num_rows == 0) {
             // El cliente no existe, lo agregamos
-            $insertClienteQuery = "INSERT INTO clientes (username, rut, telefono) VALUES ('$nombreCliente', '$rutCliente', '$telefonoCliente')";
+            $insertClienteQuery = "INSERT INTO clientes (username, email, rut, telefono) VALUES ('$nombreCliente', '$email','$rutCliente', '$telefonoCliente')";
             $con->query($insertClienteQuery);
         }
 
@@ -45,9 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $rowIdServicio = $resultIdServicio->fetch_assoc();
         $idServicio = $rowIdServicio['idservicio'];
 
+    
+        
         // Actualizar reserva en la tabla de reservas
-        $updateReservaQuery = "UPDATE reservas SET idcliente = $idCliente, idservicio = $idServicio, realizada = TRUE WHERE idbarber = 5 AND hora = '$diaReserva $horaReserva'";
+        $updateReservaQuery = "UPDATE reservas SET idcliente = $idCliente, idservicio = $idServicio, realizada = FALSE WHERE idbarber = $idbarber AND hora = '$diaReserva $horaReserva'";
         $con->query($updateReservaQuery);
+        
     }
 }
 
@@ -218,7 +223,7 @@ $idBarberoSeleccionado = isset($_POST['barbero']) ? $_POST['barbero'] : (isset($
                     
 
                     if ($isReserved) {
-                        echo '<td class="available" onclick="mostrarPopup(\'' . $formattedDate . '\', \'' . $horadisp2 . '\')"></td>';
+                        echo '<td class="available" onclick="mostrarPopup(\'' . $formattedDate . '\', \'' . $horadisp2 . '\', ' . $idBarberoSeleccionado . ')"></td>';
                     } elseif ($isReserved2){
                         echo '<td class="reserved"></td>';
                     } else
@@ -250,12 +255,17 @@ $idBarberoSeleccionado = isset($_POST['barbero']) ? $_POST['barbero'] : (isset($
             <label for="telefono">Teléfono:</label>
             <input type="text" id="telefono" name="telefono" required><br>
 
+            <label for="email">email:</label>
+            <input type="text" id="email" name="email" required><br>
+
             <label for="servicio">Servicio:</label>
             <select id="servicio" name="servicio" required>
                 <option value="Corte de cabello">Corte de cabello</option>
                 <option value="Afeitado">Afeitado</option>
                 <option value="Corte y afeitado">Corte y afeitado</option>
             </select><br>
+            
+            <input type="hidden" id="idbarber" name="barber">
 
             <input type="hidden" id="horaReserva" name="hora">
             <input type="hidden" name="action" value="reservar">
@@ -264,16 +274,25 @@ $idBarberoSeleccionado = isset($_POST['barbero']) ? $_POST['barbero'] : (isset($
             <button type="button" onclick="ocultarPopup()">Cancelar</button>
         </form>
     </div>
+    <div id="successPopup" class="booking-popup">
+        <h3>¡Éxito!</h3>
+        <p>La hora ha sido inscrita con éxito.</p>
+        <button type="button" onclick="ocultarSuccessPopup()">Cerrar</button>
+    </div>
 
     <script>
-        function mostrarPopup(dia, hora) {
+        function mostrarPopup(dia, hora, barber) {
             document.getElementById('horaReserva').value = dia + ' ' + hora;
+            document.getElementById('idbarber').value = barber;
             document.getElementById('bookingPopup').style.display = 'block';
+            
+            
         }
 
         function ocultarPopup() {
             document.getElementById('bookingPopup').style.display = 'none';
         }
+
         function volverAotraPagina() {
             
             window.location.href = "profile.php";
